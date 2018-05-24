@@ -17,18 +17,22 @@ class ViewController: UIViewController {
   var attachment: UIAttachmentBehavior!
   var itemBehavior: UIDynamicItemBehavior!
   
+  var redView: UIView!
+  var greenView: UIView!
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .yellow
     setupViews()
+    createAnimator()
   }
   
   private func setupViews() {
     let rect = CGRect(x: 100, y: 100, width: 100, height: 100)
-    let greenView = UIView(frame: rect)
+    greenView = UIView(frame: rect)
     greenView.backgroundColor = .green
     view.addSubview(greenView)
-    let redView = UIView(frame: CGRect(x: rect.origin.x + 200 , y: rect.origin.y + 100, width: rect.width-20, height: rect.height-30))
+    redView = UIView(frame: CGRect(x: rect.origin.x + 200 , y: rect.origin.y + 100, width: rect.width-20, height: rect.height-30))
     redView.backgroundColor = .red
     view.addSubview(redView)
     let pan = UIPanGestureRecognizer(target: self, action: #selector(viewPanned(_:) ))
@@ -37,14 +41,17 @@ class ViewController: UIViewController {
   
   //1. TODO
   private func createAnimator() {
-    
+    animator = UIDynamicAnimator(referenceView: view)
+    animator.delegate = self
   }
   
 }
 
 //2. TODO
 extension ViewController: UIDynamicAnimatorDelegate {
-  
+  private func dynamicAnimatorDidPause(animator: UIDynamicAnimator) {
+    print(#line, #function)
+  }
 }
 
 //  Behaviors
@@ -53,20 +60,31 @@ extension ViewController {
   
   //3. TODO
   private func collisionBehavior() {
+    collision = UICollisionBehavior(items: [greenView, redView])
+    collision.translatesReferenceBoundsIntoBoundary = true
+    animator.addBehavior(collision)
   }
   
   //4. TODO
   private func gravityBehavior() {
-    
+    gravity = UIGravityBehavior(items: [greenView, redView])
+//    gravity.angle = 2.0
+    animator.addBehavior(gravity)
   }
   
   //5. TODO
   private func addItemBehavior() {
-    
+    itemBehavior = UIDynamicItemBehavior(items: [redView])
+    itemBehavior.elasticity = 0.8
+    itemBehavior.friction = 1.0
+    animator.addBehavior(itemBehavior)
   }
   
   //6. TODO
   private func addAttachmentBehavior(view: UIView) {
+    attachment = UIAttachmentBehavior.fixedAttachment(with: redView, attachedTo: greenView, attachmentAnchor: redView.center)
+    attachment.length = 100
+    animator.addBehavior(attachment)
   }
 }
 
@@ -80,10 +98,17 @@ extension ViewController {
     switch state {
     case .began:
       print(#line, "began")
+      animator.removeAllBehaviors()
+      addAttachmentBehavior(view: redView)
     case .ended:
       print(#line, "ended")
+      animator.removeBehavior(attachment)
+//      gravityBehavior()
+//      collisionBehavior()
+//      addItemBehavior()
     case .changed:
       print(#line, "changed")
+      
     default:
       print(#line, "default")
     }
