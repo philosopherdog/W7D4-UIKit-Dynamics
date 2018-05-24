@@ -81,8 +81,8 @@ extension ViewController {
   }
   
   //6. TODO
-  private func addAttachmentBehavior(view: UIView) {
-    attachment = UIAttachmentBehavior.fixedAttachment(with: redView, attachedTo: greenView, attachmentAnchor: redView.center)
+  private func addAttachmentBehavior() {
+    attachment = UIAttachmentBehavior.init(item: redView, offsetFromCenter: .zero, attachedTo: greenView, offsetFromCenter: .zero)
     attachment.length = 100
     animator.addBehavior(attachment)
   }
@@ -98,8 +98,8 @@ extension ViewController {
     switch state {
     case .began:
       print(#line, "began")
-      animator.removeAllBehaviors()
-      addAttachmentBehavior(view: redView)
+//      animator.removeAllBehaviors()
+//      addAttachmentBehavior()
     case .ended:
       print(#line, "ended")
       animator.removeBehavior(attachment)
@@ -108,6 +108,8 @@ extension ViewController {
 //      addItemBehavior()
     case .changed:
       print(#line, "changed")
+      animator.removeAllBehaviors()
+      addAttachmentBehavior()
       
     default:
       print(#line, "default")
